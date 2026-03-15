@@ -272,9 +272,10 @@
     .cat-name { font-size: 0.82rem; font-weight: 600; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cat-total { font-size: 0.68rem; color: #475569; }
 
-    .cat-btn-right { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; align-items: center; }
+    .cat-btn-right { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; align-items: center; }
     .cat-pill { font-size: 0.68rem; font-weight: 700; line-height: 1; }
     .cat-pill-green { color: #2d7a52; }
+    .cat-pill-divider { width: 12px; height: 1px; background: #2a3a4a; }
     .cat-pill-red   { color: #7a3030; }
     .cat-btn.selected .cat-total { color: #818cf8; }
 
@@ -919,6 +920,7 @@ function renderPicker() {
       </div>
       <div class="cat-btn-right">
         <div class="cat-pill cat-pill-green">${done}</div>
+        <div class="cat-pill-divider"></div>
         <div class="cat-pill cat-pill-red">${notDone}</div>
       </div>
     `;
