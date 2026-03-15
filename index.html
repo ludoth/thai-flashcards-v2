@@ -27,12 +27,20 @@
       padding: 24px;
     }
 
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
     h1 {
       font-size: 1.4rem;
       font-weight: 600;
       letter-spacing: 0.05em;
       color: #94a3b8;
-      margin-bottom: 20px;
+      margin: 0;
     }
 
     .mode-tabs {
@@ -90,9 +98,6 @@
       display: flex;
       gap: 6px;
       align-items: center;
-      margin-bottom: 16px;
-      font-size: 0.78rem;
-      color: #475569;
     }
 
     .lang-btn {
@@ -489,7 +494,13 @@
 </head>
 <body>
 
-<h1>🇹🇭 Thai Flashcards</h1>
+<div class="top-bar">
+  <h1>🇹🇭 Thai Flashcards</h1>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="lang-th" onclick="setLang('th')">TH</button>
+  </div>
+</div>
 
 <div class="progress-wrap">
   <div class="progress-label">
@@ -499,11 +510,6 @@
   <div class="progress-bar">
     <div class="progress-fill" id="progress-fill" style="width:0%"></div>
   </div>
-</div>
-
-<div class="lang-toggle">
-  <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
-  <button class="lang-btn" id="lang-th" onclick="setLang('th')">TH</button>
 </div>
 
 <div class="mode-tabs">
