@@ -44,15 +44,94 @@
       margin: 0;
     }
 
+    .mode-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 520px;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
     .mode-tabs {
       display: flex;
       gap: 8px;
-      margin-top: 24px;
-      margin-bottom: 24px;
+      flex: 1;
       background: #1e293b;
       padding: 4px;
       border-radius: 12px;
     }
+
+    .stats-btn {
+      background: transparent;
+      border: 1.5px solid #334155;
+      border-radius: 10px;
+      color: #475569;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 8px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .stats-btn:hover { border-color: #6366f1; color: #a5b4fc; }
+
+    /* ── Stats view ── */
+    #stats-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 520px;
+      gap: 20px;
+    }
+    #stats-view.visible { display: flex; }
+
+    .stats-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .stats-title { font-size: 1rem; font-weight: 700; color: #e2e8f0; }
+
+    .tf-row {
+      display: flex;
+      gap: 6px;
+      background: #1e293b;
+      border-radius: 99px;
+      padding: 4px;
+    }
+    .tf-btn {
+      padding: 6px 16px;
+      border-radius: 99px;
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tf-btn.active { background: #6366f1; color: #fff; }
+
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 0.72rem;
+      color: #475569;
+      align-items: center;
+    }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+
+    .chart-scroll {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #stats-canvas { display: block; }
 
     .mode-tab {
       padding: 9px 20px;
@@ -534,11 +613,14 @@
   </div>
 </div>
 
-<div class="mode-tabs">
-  <button class="mode-tab active" id="tab-words" onclick="setMode('words')">Words</button>
-  <button class="mode-tab" id="tab-sentences" onclick="setMode('sentences')">Sentences</button>
-  <button class="mode-tab" id="tab-a1" onclick="setMode('a1')">A1</button>
-  <button class="mode-tab" id="tab-a2" onclick="setMode('a2')">A2</button>
+<div class="mode-row">
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-words" onclick="setMode('words')">Words</button>
+    <button class="mode-tab" id="tab-sentences" onclick="setMode('sentences')">Sentences</button>
+    <button class="mode-tab" id="tab-a1" onclick="setMode('a1')">A1</button>
+    <button class="mode-tab" id="tab-a2" onclick="setMode('a2')">A2</button>
+  </div>
+  <button class="stats-btn" onclick="showStats()">Stats</button>
 </div>
 
 <div id="picker-view">
@@ -558,6 +640,28 @@
   <div class="picker-row">
     <div class="word-count-note" id="word-count-note"></div>
     <div class="select-all" id="select-all-btn" onclick="toggleAll()">select all</div>
+  </div>
+</div>
+
+<div id="stats-view">
+  <div class="stats-header">
+    <button class="quit-btn" onclick="showPicker()">🌺</button>
+    <span class="stats-title">My Stats</span>
+    <div style="width:32px"></div>
+  </div>
+  <div class="tf-row">
+    <button class="tf-btn active" id="tf-day"   onclick="setTimeframe('day')">Day</button>
+    <button class="tf-btn"        id="tf-week"  onclick="setTimeframe('week')">Week</button>
+    <button class="tf-btn"        id="tf-month" onclick="setTimeframe('month')">Month</button>
+    <button class="tf-btn"        id="tf-all"   onclick="setTimeframe('all')">All</button>
+  </div>
+  <div class="chart-legend">
+    <span><span class="legend-dot" style="background:#34d399"></span>Learned in period</span>
+    <span><span class="legend-dot" style="background:#1a4a35"></span>Learned before</span>
+    <span><span class="legend-dot" style="background:#5a1e1e"></span>Not learned</span>
+  </div>
+  <div class="chart-scroll">
+    <canvas id="stats-canvas"></canvas>
   </div>
 </div>
 
@@ -832,9 +936,11 @@ function isDue(idx) {
 function promoteCard(idx, correct) {
   const k = cardKey(idx);
   const cur = srsData[k] || { box: 0, lastSession: 0 };
+  const newBox = correct ? Math.min(cur.box + 1, 5) : Math.max(cur.box - 1, 0);
   srsData[k] = {
-    box: correct ? Math.min(cur.box + 1, 5) : Math.max(cur.box - 1, 0),
-    lastSession: sessionCount
+    box: newBox,
+    lastSession: sessionCount,
+    learnedAt: (newBox >= 3 && cur.box < 3) ? Date.now() : (cur.learnedAt || null)
   };
   localStorage.setItem('thai_srs', JSON.stringify(srsData));
 }
@@ -985,6 +1091,7 @@ function updateStartBtn() {
 function showPicker() {
   document.getElementById('session-done').classList.remove('visible');
   document.getElementById('study-view').style.display = 'none';
+  document.getElementById('stats-view').classList.remove('visible');
   document.getElementById('picker-view').style.display = 'flex';
   applyDirectionUI();
   renderPicker();
@@ -1223,6 +1330,108 @@ function resetProgress() {
     updateProgress();
     showPicker();
   }
+}
+
+// ── Stats ──
+let currentTimeframe = 'day';
+
+function showStats() {
+  document.getElementById('picker-view').style.display = 'none';
+  document.getElementById('stats-view').classList.add('visible');
+  renderChart();
+}
+
+function setTimeframe(tf) {
+  currentTimeframe = tf;
+  ['day','week','month','all'].forEach(t => {
+    document.getElementById('tf-' + t).classList.toggle('active', t === tf);
+  });
+  // Update legend visibility
+  const legend = document.querySelector('.chart-legend');
+  legend.style.display = tf === 'all' ? 'none' : 'flex';
+  renderChart();
+}
+
+function renderChart() {
+  const canvas = document.getElementById('stats-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const { items, cats } = activeData();
+
+  const now = Date.now();
+  const periodMs = { day: 864e5, week: 6048e5, month: 2592e6 };
+  const periodStart = currentTimeframe === 'all' ? 0 : now - periodMs[currentTimeframe];
+
+  const barData = cats.map(cat => {
+    const indices = items.reduce((a, item, i) => { if (item.cat === cat) a.push(i); return a; }, []);
+    if (!indices.length) return null;
+    let learnedNew = 0, learnedOld = 0;
+    indices.forEach(i => {
+      const d = srsData[cardKey(i)];
+      if (d && d.box >= 3) {
+        if (currentTimeframe !== 'all' && d.learnedAt && d.learnedAt >= periodStart) learnedNew++;
+        else learnedOld++;
+      }
+    });
+    return { cat, total: indices.length, learnedNew, learnedOld, notLearned: indices.length - learnedNew - learnedOld };
+  }).filter(Boolean);
+
+  const BAR_W = 28, GAP = 10, PAD_LEFT = 28, PAD_TOP = 12, CHART_H = 160, LABEL_H = 40;
+  const W = PAD_LEFT + barData.length * (BAR_W + GAP) + GAP;
+  const H = PAD_TOP + CHART_H + LABEL_H;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const maxVal = Math.max(...barData.map(d => d.total), 1);
+
+  // Grid lines + Y labels
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const v = Math.round((maxVal / steps) * s);
+    const y = PAD_TOP + CHART_H - (v / maxVal) * CHART_H;
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD_LEFT, y); ctx.lineTo(W, y); ctx.stroke();
+    ctx.fillStyle = '#334155';
+    ctx.font = `${9 * dpr / dpr}px -apple-system, sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.fillText(v, PAD_LEFT - 4, y + 3);
+  }
+
+  barData.forEach((d, i) => {
+    const x = PAD_LEFT + GAP + i * (BAR_W + GAP);
+    const scale = CHART_H / maxVal;
+    let y = PAD_TOP + CHART_H;
+
+    const seg = currentTimeframe === 'all'
+      ? [{ h: d.notLearned * scale, color: '#5a1e1e' }, { h: (d.learnedOld + d.learnedNew) * scale, color: '#34d399' }]
+      : [{ h: d.notLearned * scale, color: '#5a1e1e' }, { h: d.learnedOld * scale, color: '#1a4a35' }, { h: d.learnedNew * scale, color: '#34d399' }];
+
+    seg.forEach(({ h, color }) => {
+      if (h < 0.5) return;
+      y -= h;
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, BAR_W, h);
+    });
+
+    // Category label — rotated
+    const label = (CAT_EMOJI[d.cat] ? CAT_EMOJI[d.cat] + ' ' : '') + d.cat.substring(0, 5);
+    ctx.save();
+    ctx.translate(x + BAR_W / 2, PAD_TOP + CHART_H + 6);
+    ctx.rotate(-Math.PI / 4);
+    ctx.fillStyle = '#475569';
+    ctx.font = '9px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(d.cat.substring(0, 6), 0, 0);
+    ctx.restore();
+  });
 }
 
 // ── Speech ──
