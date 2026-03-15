@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thai Flashcards</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script src="words.js"></script>
+  <script src="sentences.js"></script>
+  <script src="a1.js"></script>
+  <script src="a2.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      background: #1e293b;
+      padding: 4px;
+      border-radius: 12px;
+    }
+
+    .mode-tab {
+      padding: 9px 20px;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: #475569;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .mode-tab.active {
+      background: #6366f1;
+      color: white;
+    }
+
+    .direction-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .dir-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1.5px solid #334155;
+      background: #1e293b;
+      color: #475569;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .dir-btn.active {
+      border-color: #6366f1;
+      background: #1e1b4b;
+      color: #a5b4fc;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      color: #475569;
+    }
+
+    .lang-btn {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1.5px solid #334155;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .lang-btn.active {
+      border-color: #6366f1;
+      background: #1e1b4b;
+      color: #a5b4fc;
+    }
+
+    .quit-btn {
+      background: none;
+      border: none;
+      color: #334155;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+    }
+
+    .quit-btn:hover { color: #64748b; }
+
+    .study-header {
+      width: 100%;
+      max-width: 480px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .study-header-mode {
+      font-size: 0.78rem;
+      color: #334155;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    #word-chips {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      width: 100%;
+      max-width: 480px;
+      margin-top: 14px;
+    }
+
+    #word-chips.visible { display: flex; }
+
+    .chip {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 99px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .chip:hover { border-color: #6366f1; color: #c4b5fd; }
+    .chip.hit { border-color: #34d399; color: #34d399; }
+    .num-chip { font-size: 1.4rem; font-weight: 700; color: #64748b; cursor: default; padding: 6px 18px; }
+    .num-chip:hover { border-color: #334155; color: #64748b; }
+
+    #word-popup {
+      display: none;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    #word-popup.visible { display: block; }
+    #word-popup .pop-th { font-size: 1.1rem; font-weight: 700; color: #a78bfa; }
+    #word-popup .pop-en { color: #64748b; margin-top: 2px; }
+    #word-popup .pop-note { font-size: 0.75rem; color: #475569; font-style: italic; margin-top: 4px; border-top: 1px solid #1e293b; padding-top: 4px; }
+
+    #picker-view {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 4px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar {
+      height: 5px;
+      background: #1e293b;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .picker-label {
+      font-size: 0.78rem;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      align-self: flex-start;
+    }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .cat-btn {
+      background: #1e293b;
+      border: 1.5px solid #334155;
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cat-btn:hover { border-color: #6366f1; }
+    .cat-btn.selected { border-color: #6366f1; background: #1e1b4b; }
+
+    .cat-btn-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .cat-emoji { font-size: 1.1rem; }
+    .cat-name { font-size: 0.82rem; font-weight: 600; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-total { font-size: 0.68rem; color: #475569; }
+
+    .cat-btn-right { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; align-items: center; }
+    .cat-pill { font-size: 0.68rem; font-weight: 700; line-height: 1; }
+    .cat-pill-green { color: #2d7a52; }
+    .cat-pill-red   { color: #7a3030; }
+    .cat-btn.selected .cat-total { color: #818cf8; }
+
+    .picker-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .select-all {
+      font-size: 0.78rem;
+      color: #475569;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .select-all:hover { color: #94a3b8; }
+
+    .word-count-note {
+      font-size: 0.78rem;
+      color: #334155;
+    }
+
+    .btn-start {
+      width: 100%;
+      padding: 15px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-start:disabled { opacity: 0.35; cursor: default; }
+
+    #study-view {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 48px 32px;
+      text-align: center;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      cursor: pointer;
+      border: 1px solid #334155;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+
+    .card:hover { border-color: #6366f1; }
+
+    .card-category {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #475569;
+      position: absolute;
+      top: 18px;
+      left: 0; right: 0;
+    }
+
+    .card-srs-badge {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 0.65rem;
+      color: #334155;
+    }
+
+    .card-front { font-size: 2rem; font-weight: 700; color: #f8fafc; }
+    .card-front.thai { color: #a78bfa; }
+    .card-hint { font-size: 0.82rem; color: #475569; }
+
+    .card-back { display: none; flex-direction: column; align-items: center; gap: 6px; }
+    .card-back.visible { display: flex; }
+
+    .thai-word { font-size: 2rem; font-weight: 700; color: #34d399; }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+    .btn-again { background: #1e293b; color: #f87171; border: 1px solid #374151; }
+    .btn-got-it { background: #1e293b; color: #34d399; border: 1px solid #374151; }
+    .btn-skip { background: #1e293b; color: #64748b; border: 1px solid #374151; flex: 1; }
+    .btn-stop { background: #1e293b; color: #64748b; border: 1px solid #374151; flex: 1; }
+
+    .btn-reveal {
+      background: #6366f1;
+      color: white;
+      width: 100%;
+      max-width: 480px;
+      margin-top: 16px;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .stats {
+      display: flex;
+      gap: 24px;
+      margin-top: 28px;
+      font-size: 0.78rem;
+      color: #475569;
+    }
+
+    .stats span { color: #94a3b8; font-weight: 600; }
+
+    .srs-dots {
+      display: flex;
+      gap: 4px;
+      margin-top: 12px;
+    }
+
+    .srs-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 1px solid #334155;
+    }
+
+    .srs-dot.filled { background: #6366f1; border-color: #6366f1; }
+
+    .speak-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+    .btn-speak { background: #1e293b; border: 1px solid #334155; border-radius: 99px; font-size: 1rem; padding: 5px 14px; cursor: pointer; color: #f1f5f9; transition: opacity 0.2s, border-color 0.2s; }
+    .btn-speak:hover { border-color: #475569; }
+    .btn-speak:disabled { opacity: 0.35; cursor: not-allowed; }
+    .speak-note { font-size: 0.68rem; color: #475569; display: none; }
+    .speak-note.visible { display: block; }
+
+    #session-done {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    #session-done.visible { display: flex; }
+    #session-done h2 { font-size: 1.7rem; }
+    #session-done p { color: #64748b; max-width: 360px; }
+
+    .btn-done-row { display: flex; gap: 12px; margin-top: 8px; }
+
+    .btn-secondary {
+      padding: 13px 24px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      padding: 13px 24px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      background: #6366f1;
+      color: white;
+      cursor: pointer;
+    }
+
+    .reset-link {
+      margin-top: 20px;
+      font-size: 0.72rem;
+      color: #1e293b;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .reset-link:hover { color: #334155; }
+
+    .made-by {
+      margin-top: 28px;
+      font-size: 0.7rem;
+      color: #1e293b;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🇹🇭 Thai Flashcards</h1>
+
+<div class="lang-toggle">
+  <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tab-words" onclick="setMode('words')">Words</button>
+  <button class="mode-tab" id="tab-sentences" onclick="setMode('sentences')">Sentences</button>
+  <button class="mode-tab" id="tab-a1" onclick="setMode('a1')">A1</button>
+  <button class="mode-tab" id="tab-a2" onclick="setMode('a2')">A2</button>
+</div>
+
+<div id="picker-view">
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-label-picker">Words learned</span>
+      <span id="progress-text">0 / 0</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="direction-row">
+    <button class="dir-btn active" id="dir-eng-thai" onclick="setDirection('eng-thai')" data-key="engToThai">Eng → Thai</button>
+    <button class="dir-btn" id="dir-thai-eng" onclick="setDirection('thai-eng')" data-key="thaiToEng">Thai → Eng</button>
+  </div>
+
+  <button class="btn-start" id="btn-start" onclick="startSession()" disabled data-key="startStudying">Start studying</button>
+
+  <div class="picker-label" id="picker-label">Choose categories to study</div>
+  <div class="cat-grid" id="cat-grid"></div>
+
+  <div class="picker-row">
+    <div class="word-count-note" id="word-count-note"></div>
+    <div class="select-all" id="select-all-btn" onclick="toggleAll()">select all</div>
+  </div>
+</div>
+
+<div id="study-view" style="display:none">
+  <div class="study-header">
+    <button class="quit-btn" onclick="showPicker()" title="Home">🌺</button>
+    <span class="study-header-mode" id="study-header-mode"></span>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-label-study">Words learned</span>
+      <span id="progress-text2">0 / 0</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill2" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="card" id="card" onclick="revealCard()">
+    <div class="card-category" id="card-category"></div>
+    <div class="card-srs-badge" id="card-srs-badge"></div>
+    <div class="card-front" id="card-front"></div>
+    <div class="card-hint" id="card-hint">tap to reveal</div>
+    <div class="card-back" id="card-back">
+      <div class="thai-word" id="thai-word"></div>
+    </div>
+  </div>
+
+  <div class="srs-dots" id="srs-dots"></div>
+
+  <div class="speak-row">
+    <button class="btn-speak" id="btn-speak" onclick="speakThai()" title="Listen to Thai pronunciation">🔊</button>
+    <span class="speak-note" id="speak-note">no wifi — audio may not work</span>
+  </div>
+
+  <div id="word-chips"></div>
+  <div id="word-popup"></div>
+
+  <div class="btn-row" id="btn-reveal-row">
+    <button class="btn btn-skip" id="btn-skip" onclick="skipCard()" data-key="skip">Skip</button>
+    <button class="btn-reveal" id="btn-reveal" onclick="revealCard()" data-key="reveal" style="margin-top:0;flex:2">Reveal</button>
+  </div>
+
+  <div class="btn-row" id="btn-row" style="display:none">
+    <button class="btn btn-stop" onclick="showPicker()" data-key="stop">Stop</button>
+    <button class="btn btn-again" onclick="answer(false)" data-key="again">✗ Again</button>
+    <button class="btn btn-got-it" onclick="answer(true)" data-key="gotIt">✓ Got it</button>
+  </div>
+
+  <div class="stats">
+    <div data-key="session">Session: <span id="stat-session">0</span></div>
+    <div data-key="correct">Correct: <span id="stat-correct">0</span></div>
+    <div data-key="remaining">Remaining: <span id="stat-deck">0</span></div>
+  </div>
+</div>
+
+<div id="session-done">
+  <div style="font-size:2.5rem">🎉</div>
+  <h2 id="done-title">Session done!</h2>
+  <p id="done-msg"></p>
+  <div class="btn-done-row">
+    <button class="btn-secondary" onclick="showPicker()" data-key="changeCategories">Change categories</button>
+    <button class="btn-primary" onclick="startSession()" data-key="studyAgain">Study again</button>
+  </div>
+</div>
+
+<div class="reset-link" id="reset-link" onclick="resetProgress()">reset all progress</div>
+
+<a href="how-to-use.html" style="margin-top:16px;font-size:0.75rem;color:#334155;text-decoration:underline;" id="how-to-link">How to use</a>
+
+<div class="made-by" id="made-by">✦ Made by Ludo · v2</div>
+
+<script>
+// ── Category emojis ──
+const CAT_EMOJI = {
+  greetings:  '🙏',
+  numbers:    '🔢',
+  colors:     '🎨',
+  food:       '🍜',
+  drinks:     '🥤',
+  family:     '👨‍👩‍👧',
+  body:       '💪',
+  clothing:   '👕',
+  animals:    '🐘',
+  nature:     '🌿',
+  weather:    '⛅',
+  places:     '📍',
+  transport:  '🚗',
+  home:       '🏠',
+  verbs:      '🏃',
+  adjectives: '⭐',
+  time:       '⏰',
+  days:       '📅',
+  months:     '🗓️',
+  directions: '🧭',
+  shopping:   '🛒',
+  health:     '💊',
+  emotions:   '😊',
+  work:       '💼',
+};
+
+const CAT_NAMES = {
+  en: {
+    greetings:  'greetings',
+    numbers:    'numbers',
+    colors:     'colors',
+    food:       'food',
+    drinks:     'drinks',
+    family:     'family',
+    body:       'body',
+    clothing:   'clothing',
+    animals:    'animals',
+    nature:     'nature',
+    weather:    'weather',
+    places:     'places',
+    transport:  'transport',
+    home:       'home',
+    verbs:      'verbs',
+    adjectives: 'adjectives',
+    time:       'time',
+    days:       'days',
+    months:     'months',
+    directions: 'directions',
+    shopping:   'shopping',
+    health:     'health',
+    emotions:   'emotions',
+    work:       'work',
+  },
+  th: {
+    greetings:  'การทักทาย',
+    numbers:    'ตัวเลข',
+    colors:     'สี',
+    food:       'อาหาร',
+    drinks:     'เครื่องดื่ม',
+    family:     'ครอบครัว',
+    body:       'ร่างกาย',
+    clothing:   'เสื้อผ้า',
+    animals:    'สัตว์',
+    nature:     'ธรรมชาติ',
+    weather:    'สภาพอากาศ',
+    places:     'สถานที่',
+    transport:  'การเดินทาง',
+    home:       'บ้าน',
+    verbs:      'กริยา',
+    adjectives: 'คำคุณศัพท์',
+    time:       'เวลา',
+    days:       'วันในสัปดาห์',
+    months:     'เดือน',
+    directions: 'ทิศทาง',
+    shopping:   'การช้อปปิ้ง',
+    health:     'สุขภาพ',
+    emotions:   'ความรู้สึก',
+    work:       'งาน',
+  }
+};
+
+function catName(cat) {
+  return (CAT_NAMES[lang] || CAT_NAMES.en)[cat] || cat; // fallback: raw cat (A1/A2 chapters)
+}
+
+// ── UI strings ──
+const UI = {
+  en: {
+    words: 'Words',
+    sentences: 'Sentences',
+    startStudying: 'Start studying',
+    gotIt: '✓ Got it',
+    again: '✗ Again',
+    reveal: 'Reveal',
+    chooseCategories: 'Choose categories to study',
+    chooseChapter: 'Choose chapter to study',
+    selectAll: 'select all',
+    sessionDone: 'Session done!',
+    changeCategories: 'Change categories',
+    studyAgain: 'Study again',
+    resetProgress: 'reset all progress',
+    madeBy: '✦ Made by Ludo · v2',
+    howToUse: 'How to use',
+    skip: 'Skip',
+    stop: 'Stop',
+    engToThai: 'Eng → Thai',
+    thaiToEng: 'Thai → Eng',
+    tapToReveal: 'tap to reveal',
+    session: 'Session',
+    correct: 'Correct',
+    remaining: 'Remaining',
+    wordsLearned: 'Words learned',
+    sentencesLearned: 'Sentences learned',
+    a1Learned: 'A1 learned',
+    a2Learned: 'A2 learned',
+    box: 'Box',
+  },
+  th: {
+    words: 'คำ',
+    sentences: 'ประโยค',
+    startStudying: 'เริ่มเรียน',
+    gotIt: '✓ จำได้',
+    again: '✗ อีกครั้ง',
+    reveal: 'เปิดเผย',
+    chooseCategories: 'เลือกหมวดที่ต้องการเรียน',
+    chooseChapter: 'เลือกบทที่ต้องการเรียน',
+    selectAll: 'เลือกทั้งหมด',
+    sessionDone: 'เสร็จแล้ว! 🎉',
+    changeCategories: 'เปลี่ยนหมวด',
+    studyAgain: 'เรียนอีกครั้ง',
+    resetProgress: 'รีเซ็ตความคืบหน้า',
+    madeBy: '✦ สร้างโดย Ludo · v2',
+    howToUse: 'วิธีใช้',
+    skip: 'ข้าม',
+    stop: 'หยุด',
+    engToThai: 'อังกฤษ → ไทย',
+    thaiToEng: 'ไทย → อังกฤษ',
+    tapToReveal: 'แตะเพื่อเปิดเผย',
+    session: 'รอบนี้',
+    correct: 'ถูก',
+    remaining: 'เหลือ',
+    wordsLearned: 'คำที่เรียนแล้ว',
+    sentencesLearned: 'ประโยคที่เรียนแล้ว',
+    a1Learned: 'A1 ที่เรียนแล้ว',
+    a2Learned: 'A2 ที่เรียนแล้ว',
+    box: 'กล่อง',
+  }
+};
+
+// ── SRS ──
+const SRS_INTERVALS = [0, 1, 2, 4, 8, 16]; // box 0-5
+
+// ── State ──
+const CATEGORIES = [...new Set(WORDS.map(w => w.cat))];
+const A1_CATS    = [...new Set(A1_WORDS.map(w => w.cat))];
+const A2_CATS    = [...new Set(A2_WORDS.map(w => w.cat))];
+
+let mode      = 'words';
+let direction = localStorage.getItem('thai_direction') || 'eng-thai';
+let lang      = localStorage.getItem('thai_lang') || 'en';
+let selectedCats = new Set();
+
+let srsData      = JSON.parse(localStorage.getItem('thai_srs') || '{}');
+let sessionCount = parseInt(localStorage.getItem('thai_session_count') || '0');
+
+let queue = [];
+let current = null;
+let sessionCorrect = 0;
+let sessionTotal = 0;
+let revealed = false;
+
+function activeData() {
+  if (mode === 'words')     return { items: WORDS,     cats: CATEGORIES, labelKey: 'wordsLearned' };
+  if (mode === 'sentences') return { items: SENTENCES, cats: CATEGORIES, labelKey: 'sentencesLearned' };
+  if (mode === 'a1')        return { items: A1_WORDS,  cats: A1_CATS,    labelKey: 'a1Learned' };
+  /* a2 */                  return { items: A2_WORDS,  cats: A2_CATS,    labelKey: 'a2Learned' };
+}
+
+// ── SRS helpers ──
+function cardKey(idx) { return mode + '_' + idx; }
+
+function getBox(idx) {
+  return srsData[cardKey(idx)]?.box ?? 0;
+}
+
+function getLastSession(idx) {
+  return srsData[cardKey(idx)]?.lastSession ?? -999;
+}
+
+function isDue(idx) {
+  const box = getBox(idx);
+  if (box === 0) return true;
+  return (sessionCount - getLastSession(idx)) >= SRS_INTERVALS[Math.min(box, 5)];
+}
+
+function promoteCard(idx, correct) {
+  const k = cardKey(idx);
+  const cur = srsData[k] || { box: 0, lastSession: 0 };
+  srsData[k] = {
+    box: correct ? Math.min(cur.box + 1, 5) : Math.max(cur.box - 1, 0),
+    lastSession: sessionCount
+  };
+  localStorage.setItem('thai_srs', JSON.stringify(srsData));
+}
+
+function masteredCount() {
+  const { items } = activeData();
+  return items.filter((_, i) => getBox(i) >= 3).length;
+}
+
+// ── Language UI ──
+function t(key) { return UI[lang][key] || UI.en[key] || key; }
+
+function applyLang() {
+  document.getElementById('tab-words').textContent = t('words');
+  document.getElementById('tab-sentences').textContent = t('sentences');
+  document.getElementById('dir-eng-thai').textContent = t('engToThai');
+  document.getElementById('dir-thai-eng').textContent = t('thaiToEng');
+  document.getElementById('select-all-btn').textContent = t('selectAll');
+  document.getElementById('btn-start').textContent = t('startStudying');
+  document.getElementById('btn-reveal').textContent = t('reveal');
+  document.getElementById('done-title').textContent = t('sessionDone');
+  document.getElementById('reset-link').textContent = t('resetProgress');
+  document.getElementById('made-by').textContent = t('madeBy');
+  document.getElementById('how-to-link').textContent = t('howToUse');
+  document.querySelector('.btn-again').textContent = t('again');
+  document.querySelector('.btn-got-it').textContent = t('gotIt');
+  document.getElementById('btn-skip').textContent = t('skip');
+  document.querySelector('.btn-stop').textContent = t('stop');
+  updateStatLabels();
+  renderPicker();
+}
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('thai_lang', l);
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-th').classList.toggle('active', l === 'th');
+  applyLang();
+}
+
+function updateStatLabels() {
+  const statEls = document.querySelectorAll('.stats > div');
+  if (statEls[0]) statEls[0].innerHTML = t('session') + ': <span id="stat-session">' + sessionTotal + '</span>';
+  if (statEls[1]) statEls[1].innerHTML = t('correct') + ': <span id="stat-correct">' + sessionCorrect + '</span>';
+  if (statEls[2]) statEls[2].innerHTML = t('remaining') + ': <span id="stat-deck">' + queue.length + '</span>';
+}
+
+// ── Mode & Direction ──
+function setMode(m) {
+  mode = m;
+  selectedCats.clear();
+  ['words','sentences','a1','a2'].forEach(id =>
+    document.getElementById('tab-' + id).classList.toggle('active', m === id)
+  );
+  showPicker();
+}
+
+function setDirection(d) {
+  direction = d;
+  localStorage.setItem('thai_direction', d);
+  document.getElementById('dir-eng-thai').classList.toggle('active', d === 'eng-thai');
+  document.getElementById('dir-thai-eng').classList.toggle('active', d === 'thai-eng');
+}
+
+function applyDirectionUI() {
+  document.getElementById('dir-eng-thai').classList.toggle('active', direction === 'eng-thai');
+  document.getElementById('dir-thai-eng').classList.toggle('active', direction === 'thai-eng');
+}
+
+// ── Picker ──
+function catItemCount(cat) {
+  return activeData().items.filter(w => w.cat === cat).length;
+}
+
+function catMasteredCount(cat) {
+  const { items } = activeData();
+  return items.filter((w, i) => w.cat === cat && getBox(i) >= 3).length;
+}
+
+function renderPicker() {
+  const { cats, labelKey } = activeData();
+  const label = t(labelKey);
+  document.getElementById('progress-label-picker').textContent = label;
+
+  const isChapter = mode === 'a1' || mode === 'a2';
+  document.getElementById('picker-label').textContent =
+    isChapter ? t('chooseChapter') : t('chooseCategories');
+
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '';
+  cats.forEach(cat => {
+    const total = catItemCount(cat);
+    if (total === 0) return;
+    const done = catMasteredCount(cat);
+    const emoji = CAT_EMOJI[cat] || '📚';
+    const displayName = catName(cat);
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (selectedCats.has(cat) ? ' selected' : '');
+    const notDone = total - done;
+    btn.innerHTML = `
+      <div class="cat-btn-left">
+        <div class="cat-emoji">${isChapter ? '📖' : emoji}</div>
+        <div class="cat-name">${displayName}</div>
+        <div class="cat-total">${total} ${total === 1 ? 'word' : 'words'}</div>
+      </div>
+      <div class="cat-btn-right">
+        <div class="cat-pill cat-pill-green">${done}</div>
+        <div class="cat-pill cat-pill-red">${notDone}</div>
+      </div>
+    `;
+    btn.onclick = () => toggleCat(cat, btn);
+    grid.appendChild(btn);
+  });
+  updateWordCountNote();
+  updateStartBtn();
+}
+
+function toggleCat(cat, btn) {
+  selectedCats.has(cat) ? selectedCats.delete(cat) : selectedCats.add(cat);
+  btn.classList.toggle('selected');
+  updateWordCountNote();
+  updateStartBtn();
+}
+
+function toggleAll() {
+  const { cats } = activeData();
+  const available = cats.filter(c => catItemCount(c) > 0);
+  const allSelected = available.every(c => selectedCats.has(c));
+  allSelected ? selectedCats.clear() : available.forEach(c => selectedCats.add(c));
+  renderPicker();
+}
+
+function updateWordCountNote() {
+  const { items } = activeData();
+  const count = items.filter(w => selectedCats.has(w.cat)).length;
+  const unit = (mode === 'sentences') ? t('sentences') : t('words');
+  document.getElementById('word-count-note').textContent =
+    selectedCats.size > 0 ? `${count} ${unit}` : '';
+}
+
+function updateStartBtn() {
+  document.getElementById('btn-start').disabled = selectedCats.size === 0;
+}
+
+function showPicker() {
+  document.getElementById('session-done').classList.remove('visible');
+  document.getElementById('study-view').style.display = 'none';
+  document.getElementById('picker-view').style.display = 'flex';
+  applyDirectionUI();
+  renderPicker();
+  updateProgress();
+}
+
+// ── Progress ──
+function updateProgress() {
+  const { items, labelKey } = activeData();
+  const target = items.length;
+  const count = masteredCount();
+  const pct = target > 0 ? Math.min(100, (count / target) * 100) : 0;
+  const label = t(labelKey);
+  ['', '2'].forEach(s => {
+    const txt = document.getElementById('progress-text' + s);
+    const fill = document.getElementById('progress-fill' + s);
+    if (txt) txt.textContent = `${count} / ${target}`;
+    if (fill) fill.style.width = pct + '%';
+  });
+  const lp = document.getElementById('progress-label-study');
+  if (lp) lp.textContent = label;
+}
+
+// ── Study ──
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildQueue() {
+  const { items } = activeData();
+  const indices = items
+    .map((w, i) => ({ w, i }))
+    .filter(({ w }) => selectedCats.has(w.cat))
+    .filter(({ i }) => isDue(i))
+    .map(({ i }) => i);
+
+  if (indices.length === 0) {
+    queue = shuffle(
+      items.map((w, i) => ({ w, i }))
+        .filter(({ w }) => selectedCats.has(w.cat))
+        .map(({ i }) => i)
+    );
+  } else {
+    queue = shuffle(indices);
+  }
+}
+
+function startSession() {
+  sessionCount++;
+  localStorage.setItem('thai_session_count', sessionCount);
+  sessionCorrect = 0;
+  sessionTotal = 0;
+  buildQueue();
+  document.getElementById('session-done').classList.remove('visible');
+  document.getElementById('picker-view').style.display = 'none';
+  document.getElementById('study-view').style.display = 'flex';
+  const modeLabelMap = { words: t('words'), sentences: t('sentences'), a1: 'A1', a2: 'A2' };
+  const dirLabel = direction === 'eng-thai' ? t('engToThai') : t('thaiToEng');
+  document.getElementById('study-header-mode').textContent = `${modeLabelMap[mode]} · ${dirLabel}`;
+  updateProgress();
+  nextCard();
+}
+
+function renderSrsDots(box) {
+  const el = document.getElementById('srs-dots');
+  el.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'srs-dot' + (i < box ? ' filled' : '');
+    el.appendChild(dot);
+  }
+}
+
+function nextCard() {
+  if (queue.length === 0) { showDone(); return; }
+  const { items } = activeData();
+  const idx = queue.shift();
+  current = { item: items[idx], idx };
+  revealed = false;
+
+  const box = getBox(idx);
+  const item = items[idx];
+  const frontEl   = document.getElementById('card-front');
+  const thaiWordEl = document.getElementById('thai-word');
+
+  if (direction === 'eng-thai') {
+    frontEl.textContent = item.en;
+    frontEl.classList.remove('thai');
+    thaiWordEl.textContent = item.th;
+  } else {
+    frontEl.textContent = item.th;
+    frontEl.classList.add('thai');
+    thaiWordEl.textContent = item.en;
+  }
+
+  document.getElementById('card-category').textContent = (CAT_EMOJI[item.cat] || '') + ' ' + catName(item.cat);
+  document.getElementById('card-srs-badge').textContent = '◆'.repeat(box);
+  document.getElementById('card-hint').textContent = t('tapToReveal');
+  document.getElementById('card-hint').style.display = '';
+  document.getElementById('card-back').classList.remove('visible');
+  document.getElementById('btn-row').style.display = 'none';
+  document.getElementById('btn-reveal-row').style.display = 'flex';
+
+  renderSrsDots(box);
+
+  // Word chips — sentences, a1, a2 modes
+  const chipsEl = document.getElementById('word-chips');
+  const popupEl = document.getElementById('word-popup');
+  popupEl.classList.remove('visible');
+  popupEl.innerHTML = '';
+
+  if (mode === 'sentences' || mode === 'a1' || mode === 'a2') {
+    const frontText = direction === 'eng-thai' ? item.en : item.th;
+    const tokens = frontText.replace(/[?!.,]/g, '').split(/\s+/).filter(Boolean);
+    chipsEl.innerHTML = '';
+    tokens.forEach(token => {
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.textContent = token;
+      chip.onclick = (e) => { e.stopPropagation(); lookupWord(token, chip); };
+      chipsEl.appendChild(chip);
+    });
+    chipsEl.classList.add('visible');
+  } else if (mode === 'words' && item.num) {
+    chipsEl.innerHTML = '';
+    const chip = document.createElement('div');
+    chip.className = 'chip num-chip';
+    chip.textContent = item.num;
+    chipsEl.appendChild(chip);
+    chipsEl.classList.add('visible');
+  } else {
+    chipsEl.innerHTML = '';
+    chipsEl.classList.remove('visible');
+  }
+
+  updateStats();
+}
+
+function lookupWord(token, chipEl) {
+  const popupEl = document.getElementById('word-popup');
+  const tok = token.toLowerCase();
+
+  // Search mode's own list first, then fall back to WORDS
+  const ownList = mode === 'a1' ? A1_WORDS : mode === 'a2' ? A2_WORDS : null;
+  const lists = ownList ? [ownList, WORDS] : [WORDS];
+
+  function searchList(list) {
+    if (direction === 'eng-thai') {
+      return list.find(w => w.en.toLowerCase().split(/[\s/,()]+/).includes(tok))
+          || list.find(w => w.en.toLowerCase().includes(tok) && tok.length > 2);
+    } else {
+      return list.find(w => w.th.toLowerCase().split(/[\s/,()]+/).includes(tok))
+          || list.find(w => w.th.toLowerCase().includes(tok) && tok.length > 2);
+    }
+  }
+
+  let match = null;
+  for (const list of lists) { match = searchList(list); if (match) break; }
+
+  if (chipEl.classList.contains('hit')) {
+    chipEl.classList.remove('hit');
+    popupEl.classList.remove('visible');
+    popupEl.innerHTML = '';
+    return;
+  }
+
+  document.querySelectorAll('.chip.hit').forEach(c => c.classList.remove('hit'));
+
+  if (match) {
+    chipEl.classList.add('hit');
+    popupEl.innerHTML = `<div class="pop-th">${match.th}</div><div class="pop-en">${match.en}</div>${match.note ? `<div class="pop-note">${match.note}</div>` : ''}`;
+    popupEl.classList.add('visible');
+  } else {
+    popupEl.innerHTML = `<div class="pop-en" style="color:#475569">no match for "${token}"</div>`;
+    popupEl.classList.add('visible');
+  }
+}
+
+function skipCard() {
+  queue.push(current.idx);
+  nextCard();
+}
+
+function revealCard() {
+  if (revealed) return;
+  revealed = true;
+  document.getElementById('card-back').classList.add('visible');
+  document.getElementById('card-hint').style.display = 'none';
+  document.getElementById('btn-reveal-row').style.display = 'none';
+  document.getElementById('btn-row').style.display = 'flex';
+}
+
+function answer(correct) {
+  sessionTotal++;
+  if (correct) {
+    sessionCorrect++;
+    promoteCard(current.idx, true);
+    if (getBox(current.idx) < 2) {
+      const insertAt = Math.min(queue.length, 3 + Math.floor(Math.random() * 3));
+      queue.splice(insertAt, 0, current.idx);
+    }
+  } else {
+    promoteCard(current.idx, false);
+    const insertAt = Math.min(queue.length, 2 + Math.floor(Math.random() * 2));
+    queue.splice(insertAt, 0, current.idx);
+  }
+  updateProgress();
+  nextCard();
+}
+
+function updateStats() {
+  document.getElementById('stat-session').textContent = sessionTotal;
+  document.getElementById('stat-correct').textContent = sessionCorrect;
+  document.getElementById('stat-deck').textContent = queue.length;
+}
+
+function showDone() {
+  document.getElementById('study-view').style.display = 'none';
+  document.getElementById('session-done').classList.add('visible');
+  document.getElementById('done-title').textContent = t('sessionDone');
+  const count = masteredCount();
+  const { items } = activeData();
+  document.getElementById('done-msg').textContent =
+    `${sessionCorrect} / ${sessionTotal} correct · ${count} / ${items.length} at box 3+`;
+}
+
+function resetProgress() {
+  if (confirm('Reset all SRS progress for this mode?')) {
+    const { items } = activeData();
+    items.forEach((_, i) => delete srsData[cardKey(i)]);
+    localStorage.setItem('thai_srs', JSON.stringify(srsData));
+    updateProgress();
+    showPicker();
+  }
+}
+
+// ── Speech ──
+function speakThai() {
+  if (!window.speechSynthesis || !current) return;
+  const item = current.item;
+  let text, speechLang;
+  if (!revealed) {
+    text = direction === 'eng-thai' ? item.en : item.th;
+    speechLang = direction === 'eng-thai' ? 'en-US' : 'th-TH';
+  } else {
+    text = direction === 'eng-thai' ? item.th : item.en;
+    speechLang = direction === 'eng-thai' ? 'th-TH' : 'en-US';
+  }
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = speechLang;
+  utt.rate = 0.85;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utt);
+}
+
+function updateSpeakBtn() {
+  const note = document.getElementById('speak-note');
+  if (note) note.classList.toggle('visible', !navigator.onLine);
+}
+
+window.addEventListener('online', updateSpeakBtn);
+window.addEventListener('offline', updateSpeakBtn);
+
+// ── Init ──
+applyLang();
+setLang(lang);
+applyDirectionUI();
+showPicker();
+updateSpeakBtn();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/thai-flashcards-v2/sw.js');
+}
+</script>
+</body>
+</html>

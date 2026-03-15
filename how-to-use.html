@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to use · Thai Flashcards</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px;
+    }
+
+    .top-bar {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .back-btn {
+      font-size: 0.85rem;
+      color: #475569;
+      text-decoration: none;
+      border: 1px solid #334155;
+      padding: 6px 14px;
+      border-radius: 8px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .back-btn:hover { color: #94a3b8; border-color: #475569; }
+
+    .lang-toggle {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lang-btn {
+      padding: 4px 14px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1.5px solid #334155;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .lang-btn.active {
+      border-color: #6366f1;
+      background: #1e1b4b;
+      color: #a5b4fc;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #475569;
+      margin-bottom: 36px;
+      text-align: center;
+    }
+
+    .section {
+      width: 100%;
+      max-width: 600px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-emoji { font-size: 1.5rem; }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .section p {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .section p:last-child { margin-bottom: 0; }
+
+    .highlight {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.82rem;
+      color: #a78bfa;
+      font-weight: 600;
+    }
+
+    .dots-demo {
+      display: flex;
+      gap: 4px;
+      margin: 8px 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid #334155;
+      background: #1e293b;
+    }
+
+    .dot.filled { background: #6366f1; border-color: #6366f1; }
+
+    .made-by {
+      margin-top: 40px;
+      font-size: 0.7rem;
+      color: #1e293b;
+    }
+
+    .th { display: none; }
+    .english { display: block; }
+    body.lang-th .th { display: block; }
+    body.lang-th .english { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a class="back-btn" href="index.html">← Back</a>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="lang-th" onclick="setLang('th')">TH</button>
+  </div>
+</div>
+
+<!-- ENGLISH -->
+<div class="english">
+  <h1>🌺 How to use</h1>
+  <p class="subtitle">Thai Flashcards · Quick guide</p>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">1️⃣</div>
+      <div class="section-title">Choose your mode</div>
+    </div>
+    <p>Tap <span class="highlight">Words</span> or <span class="highlight">Sentences</span> for everyday Thai. Use <span class="highlight">A1</span> or <span class="highlight">A2</span> to study structured lesson chapters.</p>
+    <p>Choose your direction: <span class="highlight">Eng → Thai</span> to see English and guess Thai, or <span class="highlight">Thai → Eng</span> to see Thai and guess English.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">2️⃣</div>
+      <div class="section-title">Pick categories</div>
+    </div>
+    <p>Tap one or more category (or chapter) buttons to select what you want to study. Tap <span class="highlight">select all</span> to choose everything.</p>
+    <p>Each button shows how many cards you have mastered in that category.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">3️⃣</div>
+      <div class="section-title">Study a card</div>
+    </div>
+    <p>Read the word or sentence on the card. Try to remember the answer, then tap <span class="highlight">Reveal</span> to see it.</p>
+    <p>Then be honest with yourself:</p>
+    <p>✓ <span class="highlight">Got it</span> — you knew the answer. The card moves forward.</p>
+    <p>✗ <span class="highlight">Again</span> — you didn't know it. The card comes back soon.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">💜</div>
+      <div class="section-title">The 5 boxes</div>
+    </div>
+    <p>Every card has 5 boxes. The filled dots show which box your card is in:</p>
+    <div class="dots-demo">
+      <div class="dot filled"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <p>Box 1 — new card, seen every session</p>
+    <div class="dots-demo">
+      <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <p>Box 3 — good progress, seen less often</p>
+    <div class="dots-demo">
+      <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div>
+    </div>
+    <p>Box 5 — mastered! Shown rarely as a reminder.</p>
+    <p>Getting an answer wrong moves the card back. Getting it right moves it forward.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">💡</div>
+      <div class="section-title">Word helper (Sentences, A1, A2)</div>
+    </div>
+    <p>In Sentences, A1, and A2 modes, each word appears as a small chip below the card. Tap any word you don't know to get its translation instantly.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">📱</div>
+      <div class="section-title">Install on your phone</div>
+    </div>
+    <p><strong>Android:</strong> Open in Chrome → tap the menu (⋮) → <em>Add to Home Screen</em>.</p>
+    <p><strong>iPhone:</strong> Open in Safari → tap Share → <em>Add to Home Screen</em>.</p>
+    <p>The app works offline after the first visit.</p>
+  </div>
+</div>
+
+<!-- THAI -->
+<div class="th">
+  <h1>🌺 วิธีใช้</h1>
+  <p class="subtitle">Thai Flashcards · คู่มือการใช้งาน</p>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">1️⃣</div>
+      <div class="section-title">เลือกโหมดที่ต้องการเรียน</div>
+    </div>
+    <p>แตะ <span class="highlight">คำ</span> หรือ <span class="highlight">ประโยค</span> สำหรับภาษาไทยทั่วไป หรือ <span class="highlight">A1</span> / <span class="highlight">A2</span> สำหรับเรียนตามบท</p>
+    <p>เลือกทิศทาง: <span class="highlight">อังกฤษ → ไทย</span> เห็นอังกฤษตอบไทย หรือ <span class="highlight">ไทย → อังกฤษ</span> เห็นไทยตอบอังกฤษ</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">2️⃣</div>
+      <div class="section-title">เลือกหมวดที่ต้องการเรียน</div>
+    </div>
+    <p>แตะปุ่มหมวด (หรือบท) ที่ต้องการเรียน เลือกได้หลายหมวด หรือแตะ <span class="highlight">เลือกทั้งหมด</span> เพื่อเลือกทุกหมวด</p>
+    <p>แต่ละปุ่มบอกว่าคุณเรียนผ่านไปแล้วกี่คำในหมวดนั้น</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">3️⃣</div>
+      <div class="section-title">วิธีเรียนคำ</div>
+    </div>
+    <p>อ่านคำหรือประโยคบนการ์ด ลองคิดคำตอบก่อน แล้วแตะ <span class="highlight">เปิดเผย</span> เพื่อดูคำตอบ</p>
+    <p>แล้วตอบตามความจริง:</p>
+    <p>✓ <span class="highlight">จำได้</span> — ตอบได้ การ์ดจะไปข้างหน้า</p>
+    <p>✗ <span class="highlight">อีกครั้ง</span> — ตอบไม่ได้ การ์ดจะกลับมาใหม่เร็วๆ นี้</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">💜</div>
+      <div class="section-title">5 กล่องการเรียน</div>
+    </div>
+    <p>ทุกการ์ดมี 5 กล่อง จุดที่เต็มบอกว่าการ์ดอยู่กล่องไหน:</p>
+    <div class="dots-demo">
+      <div class="dot filled"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <p>กล่อง 1 — การ์ดใหม่ เห็นทุกรอบ</p>
+    <div class="dots-demo">
+      <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <p>กล่อง 3 — เรียนได้ดี เห็นน้อยลง</p>
+    <div class="dots-demo">
+      <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div>
+    </div>
+    <p>กล่อง 5 — เก่งแล้ว! เห็นนานๆ ครั้ง</p>
+    <p>ตอบผิดการ์ดกลับไปกล่องก่อน ตอบถูกการ์ดไปกล่องถัดไปและเห็นน้อยลง</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">💡</div>
+      <div class="section-title">ตัวช่วยคำ (โหมด Sentences, A1, A2)</div>
+    </div>
+    <p>ในโหมด Sentences, A1 และ A2 แต่ละคำจะปรากฏเป็นปุ่มเล็กๆ ใต้การ์ด แตะคำที่ไม่รู้จักเพื่อดูความหมายได้เลย</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-emoji">📱</div>
+      <div class="section-title">ติดตั้งบนโทรศัพท์</div>
+    </div>
+    <p><strong>Android:</strong> เปิดใน Chrome → แตะเมนู (⋮) → <em>เพิ่มในหน้าจอหลัก</em></p>
+    <p><strong>iPhone:</strong> เปิดใน Safari → แตะแชร์ → <em>เพิ่มในหน้าจอโฮม</em></p>
+    <p>แอปนี้ใช้ได้แม้ไม่มีเน็ตหลังจากเปิดครั้งแรกแล้ว</p>
+  </div>
+</div>
+
+<div class="made-by">✦ Made by Ludo</div>
+
+<script>
+  function setLang(l) {
+    document.body.className = l === 'th' ? 'lang-th' : '';
+    document.getElementById('lang-en').classList.toggle('active', l === 'en');
+    document.getElementById('lang-th').classList.toggle('active', l === 'th');
+    localStorage.setItem('thai_lang', l);
+  }
+  const saved = localStorage.getItem('thai_lang') || 'en';
+  setLang(saved);
+</script>
+</body>
+</html>
